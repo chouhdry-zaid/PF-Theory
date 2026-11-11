@@ -1,29 +1,34 @@
+
 /*
 Programmer:Zaid
 section:BS-AI-1A
 ROLL NO:0015
 Description:Booking management system
 */
+
 #include<stdio.h>
 #include<stdlib.h>
-int main(){
-    int rows=5,col=8,k,count=0,total=0; // variables
-    printf("Enter the no: of seats you want to sit together:");
-    scanf("%d",&k); // input
-    if (k>col)
-    {
-        printf("Maximum seats in a Row is %d.\n Re-input:",col);
-        scanf("%d",&k);
-        /* code */
-    }
-    
-    int **array=(int **)malloc(rows * sizeof(int *)); // allocate
-    for (int i = 0; i < rows; i++)
-    {
-        array[i]=(int *)calloc(col, sizeof(int ));
 
+int main(){
+
+    int rows=5,col=8,k,count=0,total=0;
+    int found=0;
+
+    printf("Enter the no: of seats you want to sit together:");
+    scanf("%d",&k);
+
+    while(k<1 || k>col){
+        printf("Maximum seats in a Row is %d.\nRe-input:",col);
+        scanf("%d",&k);
     }
-    array[0][2]=1; // booked
+
+    int **array=(int **)malloc(rows * sizeof(int *));
+
+    for(int i=0;i<rows;i++){
+        array[i]=(int *)calloc(col,sizeof(int));
+    }
+
+    array[0][2]=1;
     array[0][7]=1;
     array[1][1]=1;
     array[1][2]=1;
@@ -34,126 +39,135 @@ int main(){
     array[3][6]=1;
     array[4][0]=1;
     array[4][1]=1;
-    
-    for (int i = 0; i < rows; i++)
-    {
+
+    // availability
+    printf("\nFree seats per row: ");
+
+    for(int i=0;i<rows;i++){
+
         count=0;
-        for (int j = 0; j < col; j++)
-        {
-            if (array[i][j]==0)
-            {
+
+        for(int j=0;j<col;j++){
+            if(array[i][j]==0){
                 count++;
             }
         }
-        printf("Free seats in R%d is %d\n",i,count); // availability
+
+        printf("%d ",count);
         total+=count;
     }
-    printf("Total free seats:%d\n",total);
-    count=0;
-    int i,j;
-    for ( i = rows/2; i >=0; i--) // search
-    {
-        for ( j = 0; j < col; j++)
-        {
-            if(array[i][j]==0){
-                count++;
-            }
-            if(count==k){ // found
-                if (j-k+1<0)
-                {
-                    printf("there were less seats in one row to sit together.\nRe-input:");
-                    scanf("%d",&k);
-                    /* code */
-                }else{
 
-                    printf("Group of %d seated in row %d, seats %d to %d\n.",k,i,j-k+1,j);
-                }
-                array[i][j]=1;
-                for (int l = 0; l < k; l++)
-                {
-                    array[i][j-l]=1;
-                    /* code */
-                }
-                
-                break;
-            }
-            /* code */
-        }
-        if (count==k)
-        {
-            break;
-            /* code */
-        }
+    printf("   Total free: %d\n",total);
+
+    int i,j;
+
+    // search from middle row to first row
+    for(i=rows/2;i>=0;i--){
+
         count=0;
-        if (i==0)
-        {
-            for( i = rows/2; i <rows; i++)
-    {
-        for ( j = 0; j < col; j++)
-        {
+
+        for(j=0;j<col;j++){
+
             if(array[i][j]==0){
                 count++;
             }
+            else{
+                count=0;
+            }
+
             if(count==k){
-                printf("Group of 3 seated in row %d, seats %d to %d\n.",i,j-k+1,j);
-                for (int l = 0; l < k; l++)
-                {
-                    array[i][j-l]=1;
-                    /* code */
+
+                printf("\nGroup of %d seated in Row %d, Seats %d to %d\n",
+                k,i,j-k+1,j);
+
+                for(int l=j-k+1;l<=j;l++){
+                    array[i][l]=1;
                 }
-                
+
+                found=1;
                 break;
             }
-            /* code */
         }
-        if (count==k)
-        {
+
+        if(found==1){
             break;
-            /* code */
         }
-        count=0;
-        
     }
-            /* code */
-        }
-        
-    }
-    //ISSUE
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < col; j++)
-        {
-            if (array[i][j]==1)
-            {
-                array[i][j]=='X';
-                /* code */
-            }else{
-                array[i][j]=='_';
+
+    // search from middle row to last row
+    if(found==0){
+
+        for(i=rows/2+1;i<rows;i++){
+
+            count=0;
+
+            for(j=0;j<col;j++){
+
+                if(array[i][j]==0){
+                    count++;
+                }
+                else{
+                    count=0;
+                }
+
+                if(count==k){
+
+                    printf("\nGroup of %d seated in Row %d, Seats %d to %d\n",
+                    k,i,j-k+1,j);
+
+                    for(int l=j-k+1;l<=j;l++){
+                        array[i][l]=1;
+                    }
+
+                    found=1;
+                    break;
+                }
+            }
+
+            if(found==1){
+                break;
             }
         }
-        
     }
-    for (int i = 0; i <8; i++)
-    {
-        if (i==0)
-        {
-            printf("  \t%d ",i);
-            /* code */
-        }else
-        printf("%d ",i);
-        
-        /* code */
+
+    if(found==0){
+        printf("\nNo seats available.\n");
     }
+
+    // display seats
+
     printf("\n");
-    
-    for (int i = 0; i < rows; i++)
-    {
-        printf("R%d\t",i); // display
-        for (int j = 0; j < col; j++)
-        {
-            printf("%d|",array[i][j]);
+
+    for(int i=0;i<col;i++){
+        printf("%d ",i);
+    }
+
+    printf("\n");
+
+    for(int i=0;i<rows;i++){
+
+        printf("R%d\t",i);
+
+        for(int j=0;j<col;j++){
+
+            if(array[i][j]==1){
+                printf("X ");
+            }
+            else{
+                printf("_ ");
+            }
         }
+
         printf("\n");
     }
 
-}
+    // free memory
+
+    for(int i=0;i<rows;i++){
+        free(array[i]);
+    }
+
+    free(array);
+
+    return 0;
+}
